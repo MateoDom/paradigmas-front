@@ -22,6 +22,7 @@ import { IStudent } from "@/screens/Students/models/studentModel";
 import { useRegisterLoan } from "@/screens/Loans/hooks/useRegisterLoan";
 import { IBook } from "../../models/bookModel";
 import { useQueryClient } from "react-query";
+import { toast } from "sonner";
 
 interface LoanDialogProps {
   book: IBook;
@@ -41,6 +42,7 @@ const LoanDialog: React.FC<LoanDialogProps> = ({ book, queryValue }) => {
     reset,
   } = useRegisterLoan({
     onSuccess: () => {
+      toast.success("Préstamo registrado", { duration: 3000 });
       setIsOpen(false);
       queryClient.invalidateQueries(["books"]);
       queryClient.invalidateQueries(["available"]);
@@ -48,6 +50,9 @@ const LoanDialog: React.FC<LoanDialogProps> = ({ book, queryValue }) => {
         queryClient.invalidateQueries(["books-by", queryValue]);
       }
     },
+    onError: () => {
+      toast.error("Ocurrio un error", { duration: 3000 });
+    }
   });
 
   const handleRegister = () => {

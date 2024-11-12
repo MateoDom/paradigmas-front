@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useQueryClient } from "react-query";
 import { useCreateBooks } from "../../hooks/useCreateBooks";
+import { toast } from "sonner";
 
 interface CreateBookDialogProps {
   isOpen: boolean;
@@ -56,12 +57,17 @@ export default function CreateBookDialog({
   } = useCreateBooks({
     onSuccess: () => {
       onOpen();
+      toast.success("Libro creado con éxito", { duration: 3000 });
       queryClient.invalidateQueries(["books"]);
       queryClient.invalidateQueries(["available"]);
       if (queryValue) {
         queryClient.invalidateQueries(["books-by", queryValue]);
       }
     },
+    onError: () => {
+      toast.error("Ocurrio un error", { duration: 3000 });
+    }
+
   });
 
   const handleSubmit = async (e: React.FormEvent) => {

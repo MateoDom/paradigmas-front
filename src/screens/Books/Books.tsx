@@ -93,7 +93,7 @@ const Books = () => {
           </div>
           <div className="relative overflow-x-auto">
             {isLoading || isLoadingAvailable || isLoadingSearch ? (
-              <div className="flex justify-center items-center h-screen">
+              <div className="flex justify-center items-center py-4">
                 <LoadingSpinner className="h-8 w-8 animate-spin" />
               </div>
             ) : (

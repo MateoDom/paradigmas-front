@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { useQueryClient } from "react-query";
 import { ILoan } from "../../models/loanModel";
 import { useReturnLoan } from "../../hooks/useReturnLoan";
+import { toast } from "sonner";
 
 interface LoanDialogProps {
   loan: ILoan;
@@ -29,9 +30,13 @@ const ReturnLoanDialog: React.FC<LoanDialogProps> = ({ loan }) => {
   } = useReturnLoan({
     onSuccess: () => {
       reset();
+      toast.success("Préstamo devuelto", { duration: 3000 });
       setIsOpen(false);
       queryClient.invalidateQueries(["loans"]);
     },
+    onError: () => {
+      toast.error("Ocurrio un error", { duration: 3000 });
+    }
   });
 
   const handleReturn = () => {

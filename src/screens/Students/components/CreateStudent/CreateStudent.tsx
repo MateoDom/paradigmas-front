@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useQueryClient } from "react-query";
 import { useCreateStudents } from "../../hooks/useCreateStudents";
+import { toast } from "sonner";
 
 interface CreateStudentDialogProps {
   isOpen: boolean;
@@ -51,8 +52,12 @@ export default function CreateStudentDialog({
     onSuccess: () => {
       onOpen();
       reset();
+      toast.success("Estudiante creado con éxito", { duration: 3000 });
       queryClient.invalidateQueries(["students"]);
     },
+    onError: () => {
+      toast.error("Ocurrio un error", { duration: 3000 });
+    }
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
