@@ -15,7 +15,7 @@ const api = {
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   put: async <T>(url: string, data: any, config?: AxiosRequestConfig) => {
-    return await apiFacade.post<T>(url, data, config);
+    return await apiFacade.put<T>(url, data, config);
   },
 };
 

@@ -25,9 +25,10 @@ import { useQueryClient } from "react-query";
 
 interface LoanDialogProps {
   book: IBook;
+  queryValue: string;
 }
 
-const LoanDialog: React.FC<LoanDialogProps> = ({ book }) => {
+const LoanDialog: React.FC<LoanDialogProps> = ({ book, queryValue }) => {
   const [selectedStudent, setSelectedStudent] = useState<string>("");
   const [loanDuration, setLoanDuration] = useState<string>("");
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -42,6 +43,10 @@ const LoanDialog: React.FC<LoanDialogProps> = ({ book }) => {
     onSuccess: () => {
       setIsOpen(false);
       queryClient.invalidateQueries(["books"]);
+      queryClient.invalidateQueries(["available"]);
+      if (queryValue) {
+        queryClient.invalidateQueries(["books-by", queryValue]);
+      }
     },
   });
 

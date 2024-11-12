@@ -3,7 +3,7 @@ import "./index.css";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "./components/layout.tsx";
-import { Books } from "./screens";
+import { Books, Loans, Students } from "./screens";
 import { DefaultOptions, QueryClient, QueryClientProvider } from "react-query";
 
 const router = createBrowserRouter([
@@ -14,11 +14,11 @@ const router = createBrowserRouter([
       { index: true, element: <Books /> },
       {
         path: "/students",
-        element: <Books />,
+        element: <Students />,
       },
       {
         path: "/loans",
-        element: <Books />,
+        element: <Loans />,
       },
     ],
   },
