@@ -18,15 +18,24 @@ import { Switch } from "@/components/ui/switch";
 import useDebounce from "@/hooks/useDebounce";
 import { useGetBooksBySearch } from "./hooks/useGetBookBySearch";
 import { Input } from "@/components/ui/input";
-import { Plus, Search } from "lucide-react";
+import { DotIcon, EllipsisIcon, MenuIcon, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CreateBookDialog from "./components/CreateBook/CreateBook";
+import { useAddEjemplar } from "./hooks/useAddEjemplar";
+import { toast } from "sonner";
+import { useQueryClient } from "react-query";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Books = () => {
   const [isFiltering, setIsFiltering] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-
+  const queryClient = useQueryClient();
   const isAvailable = (availables: number) => {
     return availables > 0;
   };
@@ -53,6 +62,22 @@ const Books = () => {
     : isFiltering
     ? availableBooks
     : books;
+
+  const { mutate: addEjemplar } = useAddEjemplar({
+    onSuccess: () => {
+      toast.success("Ejemplar creado con éxito", { duration: 3000 });
+      queryClient.invalidateQueries(["books"]);
+      if (isFiltering) {
+        queryClient.invalidateQueries(["available"]);
+      }
+      if (debouncedSearch) {
+        queryClient.invalidateQueries(["books-by", debouncedSearch]);
+      }
+    },
+    onError: () => {
+      toast.error("Ocurrio un error", { duration: 3000 });
+    },
+  });
 
   return (
     <div className="container  py-8">
@@ -108,46 +133,70 @@ const Books = () => {
                     </TableHead>
                     <TableHead className="text-center">Disponibles</TableHead>
                     <TableHead className="text-center">Estado</TableHead>
-                    <TableHead className="text-right">Acción</TableHead>
+                    <TableHead className="text-right"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {tableDate && tableDate?.map((libro: IBook) => (
-                    <TableRow key={libro.idLibro}>
-                      <TableCell className="font-medium">
-                        {libro.titulo}
-                      </TableCell>
-                      <TableCell>{libro.autor}</TableCell>
-                      <TableCell>{libro.anioPublicacion}</TableCell>
-                      <TableCell className="text-center">
-                        {libro.cantidadDeEjemplares}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {libro.cantidadDeEjemplaresDisponibles}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {isAvailable(libro.cantidadDeEjemplaresDisponibles) ? (
-                          <Badge className="bg-green-500 hover:bg-green-600">
-                            Disponible
-                          </Badge>
-                        ) : libro.cantidadDeEjemplaresDisponibles === 0 ? (
-                          "-"
-                        ) : (
-                          <Badge variant="destructive">Prestado</Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {isAvailable(libro.cantidadDeEjemplaresDisponibles) ? (
-                          <LoanDialog
-                            book={libro}
-                            queryValue={debouncedSearch}
-                          />
-                        ) : (
-                          "-"
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {tableDate &&
+                    tableDate?.map((libro: IBook) => (
+                      <TableRow key={libro.idLibro}>
+                        <TableCell className="font-medium">
+                          {libro.titulo}
+                        </TableCell>
+                        <TableCell>{libro.autor}</TableCell>
+                        <TableCell>{libro.anioPublicacion}</TableCell>
+                        <TableCell className="text-center">
+                          {libro.cantidadDeEjemplares}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {libro.cantidadDeEjemplaresDisponibles}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {isAvailable(
+                            libro.cantidadDeEjemplaresDisponibles
+                          ) ? (
+                            <Badge className="bg-green-500 hover:bg-green-600">
+                              Disponible
+                            </Badge>
+                          ) : libro.cantidadDeEjemplaresDisponibles === 0 ? (
+                            "-"
+                          ) : (
+                            <Badge variant="destructive">Prestado</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {isAvailable(
+                            libro.cantidadDeEjemplaresDisponibles
+                          ) ? (
+                            <LoanDialog
+                              book={libro}
+                              queryValue={debouncedSearch}
+                            />
+                          ) : (
+                            "-"
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <EllipsisIcon />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  addEjemplar({ id: libro.idLibro });
+                                }}
+                              >
+                                <Plus className="mr-2 h-4 w-4" />
+                                Agregar Ejemplar
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
                 </TableBody>
               </Table>
             )}
